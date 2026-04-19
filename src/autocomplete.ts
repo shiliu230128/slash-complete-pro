@@ -165,16 +165,20 @@ function saveEdit(cmd: Command, newName: string) {
 // 绑定拖拽排序事件
 function bindDragEvents(el: HTMLElement, cmd: Command) {
 	el.ondragstart = (e) => {
-		e.dataTransfer.setData("command-id", cmd.command);
+		if (e.dataTransfer) {
+			e.dataTransfer.setData("command-id", cmd.command);
+		}
 		el.addClass("drag-active");
 	};
 	el.ondragover = (e) => e.preventDefault();
 	el.ondrop = (e) => {
 		e.preventDefault();
 		const targetCmd = findCommandByElement(el);
-		const draggedId = e.dataTransfer.getData("command-id");
-		if (draggedId !== targetCmd?.command) {
-			dragSort(draggedId, targetCmd!);
+		if (e.dataTransfer && targetCmd) {
+			const draggedId = e.dataTransfer.getData("command-id");
+			if (draggedId !== targetCmd.command) {
+				dragSort(draggedId, targetCmd);
+			}
 		}
 		el.removeClass("drag-active");
 	};
@@ -202,6 +206,7 @@ function addAddButton(container: HTMLElement, instance: AutoComplete) {
 // 新增命令
 function addNewCommand(instance: AutoComplete) {
 	const newCmd: Command = {
+		id: Date.now(),  // 使用时间戳作为唯一ID
 		command: "新命令",
 		alias: null,
 		value: "自定义内容",

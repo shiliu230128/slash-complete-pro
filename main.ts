@@ -33,13 +33,23 @@ export default class SlashCompletePlugin extends Plugin {
 			return DEFAULT_SETTINGS;
 		}
 
-		// Merge commands into stored settings when new ones are added
-		const commands = Object.assign(
-			{},
-			DEFAULT_SETTINGS.commands,
-			stored.commands
-		);
-		stored.commands = commands;
+		// 🔥 修复：commands 现在是数组，需要数组合并
+		if (stored.commands && Array.isArray(stored.commands)) {
+			const defaultCommands: Command[] = DEFAULT_SETTINGS.commands;
+			const storedCommands: Command[] = stored.commands;
+			
+			// 创建一个 Map 用于去重，基于 command 名称
+			const commandMap = new Map<string, Command>();
+			
+			// 先添加默认命令
+			defaultCommands.forEach((cmd: Command) => commandMap.set(cmd.command, cmd));
+			// 再添加用户存储的命令（用户自定义的会覆盖默认的）
+			storedCommands.forEach((cmd: Command) => commandMap.set(cmd.command, cmd));
+			
+			// 转回数组
+			stored.commands = Array.from(commandMap.values());
+		}
+		
 		return stored;
 	}
 }

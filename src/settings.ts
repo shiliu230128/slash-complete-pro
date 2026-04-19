@@ -62,7 +62,8 @@ export class SlashCompleteSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl).setName(`Markdown constructs`).setHeading();
-		for (let [_, c] of Object.entries(this.plugin.settings.commands)) {
+		// 🔥 修复：commands 现在是数组，使用 for...of 遍历
+		for (const c of this.plugin.settings.commands) {
 			new Setting(containerEl)
 				.setName(c.command)
 				.setDesc(`Set the autocomplete settings for ${c.command}.`)
